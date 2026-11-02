@@ -1,0 +1,40 @@
+
+name: Compliance as Code
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compliance-check:
+    name: Checkov Compliance Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Checkov
+        run: |
+          python -m pip install --upgrade pip
+          pip install checkov
+
+      - name: Run Compliance Checks
+        run: |
+          checkov -d experiment9-compliance/terraform \
+            --framework terraform \
+            --external-checks-dir experiment9-compliance/custom_checks \
+            --check CKV_CUSTOM_1
